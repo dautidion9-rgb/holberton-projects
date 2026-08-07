@@ -1,0 +1,29 @@
+order_id|customer|product|quantity|price
+101|Alice|Notebook|2|4.50
+102|Bob|Pen|10|1.20
+103|Alice|Backpack|1|29.99
+104|Carla|Stapler|3|7.25
+105|Dritan|Notebook|5|4.50
+106|Bob|Highlighter|4|2.10
+107|Elira|Desk Lamp|1|18.75
+108|Carla|Pen|12|1.20
+109|Alice|Sticky Notes|6|3.40
+110|Frank|Backpack|2|29.99
+111|Dritan|Whiteboard|1|45.00
+112|Elira|Notebook|3|4.50
+113|Bob|Backpack|1|29.99
+114|Gerta|Pen|20|1.20
+115|Frank|Desk Lamp|2|18.75
+116|Carla|Sticky Notes|8|3.40
+117|Alice|Highlighter|5|2.10
+118|Gerta|Stapler|1|7.25
+119|Dritan|Pen|15|1.20
+120|Elira|Whiteboard|2|45.00
+121|Frank|Notebook|4|4.50
+122|Gerta|Sticky Notes|10|3.40
+123|Carla|Backpack|1|29.99
+124|Bob|Stapler|2|7.25
+125|Alice|Desk Lamp|1|18.75
+126|Ilir|Ruler|abc|2.50
+127|Jona|Eraser|3|not_a_price
+128|Klodian|Marker
