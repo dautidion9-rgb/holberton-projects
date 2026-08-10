@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build user-centric indices by joining posts, comments, and todos."""
+"""Build user indices and compute per-user activity metrics."""
 
 import sys
 
@@ -56,38 +56,69 @@ def build_all_indices(data):
     }
 
 
+def compute_user_metrics(users, posts, comments, todos):
+    """Return a list of per-user metric dicts - one row per user."""
+    user_posts = build_user_posts(posts)
+    user_todos = build_user_todos(todos)
+    user_comments = build_user_comments(comments, posts)
+
+    rows = []
+
+    for user in users:
+        uid = user["id"]
+        u_posts = user_posts.get(uid, [])
+        u_comments = user_comments.get(uid, [])
+        u_todos = user_todos.get(uid, [])
+
+        completed = sum(1 for t in u_todos if t["completed"])
+        rate = completed / len(u_todos) if u_todos else 0.0
+
+        rows.append({
+            "user_id": uid,
+            "user_name": user["name"],
+            "username": user["username"],
+            "num_posts": len(u_posts),
+            "num_comments_on_posts": len(u_comments),
+            "num_todos": len(u_todos),
+            "num_completed": completed,
+            "completion_rate": rate,
+        })
+
+    return rows
+
+
+def print_metrics_table(rows):
+    """Print the metrics as an aligned text table."""
+    header = (f"{'id':>3} {'name':<24} {'posts':>6} {'comments':>9} "
+              f"{'todos':>6} {'done':>5} {'rate':>7}")
+    print(header)
+    print("-" * len(header))
+    for r in rows:
+        print(f"{r['user_id']:>3} {r['user_name'][:24]:<24} "
+              f"{r['num_posts']:>6} {r['num_comments_on_posts']:>9} "
+              f"{r['num_todos']:>6} {r['num_completed']:>5} "
+              f"{r['completion_rate']:>6.1%}")
+
+
 def main():
     data_dir = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_DIR
     data = load_all(data_dir)
 
-    idx = build_all_indices(data)
-    user_posts = idx["user_posts"]
-    user_todos = idx["user_todos"]
-    user_comments = idx["user_comments"]
+    rows = compute_user_metrics(
+        data["users"], data["posts"], data["comments"], data["todos"]
+    )
 
-    print(f"{'user':>5} {'posts':>6} {'comments':>9} {'todos':>6}")
-    for user in data["users"]:
-        uid = user["id"]
-        print(f"{uid:>5} "
-              f"{len(user_posts.get(uid, [])):>6} "
-              f"{len(user_comments.get(uid, [])):>9} "
-              f"{len(user_todos.get(uid, [])):>6}")
+    print_metrics_table(rows)
 
-    total_posts = sum(len(v) for v in user_posts.values())
-    total_comments = sum(len(v) for v in user_comments.values())
-    total_todos = sum(len(v) for v in user_todos.values())
-
-    print(f"\ntotals: {total_posts} posts, {total_comments} comments, "
-          f"{total_todos} todos")
-
-    assert total_posts == len(data["posts"])
-    assert total_comments == len(data["comments"])
-    assert total_todos == len(data["todos"])
-    print("Join preserved every record.")
+    assert len(rows) == len(data["users"])
+    assert sum(r["num_posts"] for r in rows) == len(data["posts"])
+    assert sum(r["num_comments_on_posts"] for r in rows) == len(data["comments"])
+    assert sum(r["num_todos"] for r in rows) == len(data["todos"])
+    print("\nMetrics reconcile with source counts.")
 
 
 if __name__ == "__main__":
     main()
 
-# end of file - buffer line
-# end of file - buffer line
+# end of file - buffer
+# end of file - buffer
