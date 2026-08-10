@@ -1,0 +1,58 @@
+# project 04 notes
+
+## most surprising pattern
+
+honestly nothing. its generated test data from an api so the distribution is
+flat — every user has exactly 20 todos, completion is close to a coin flip.
+
+the closest thing to a finding was the ties. users 5 and 10 are both at 60%
+completion. if id used idxmax i would have only seen user 5 and never known
+10 existed at the same rate. same problem with top 3 by count — all ten users
+have 20 todos so any top 3 is arbitrary.
+
+so the pattern was in how easy it is to report a confident wrong answer, not
+in the data itself.
+
+## which pandas operation felt most useful
+
+describe(). one call gives count, mean, std, min, max and the quartiles for
+every numeric column.
+
+caveat i noticed: it also describes id and user_id. mean id is 100.5 and mean
+user_id is 5.5, both meaningless. pandas doesnt know which columns are
+identifiers and which are measurements, so it computes stats on everything.
+useful but you have to know what to ignore.
+
+groupby was the one that connected back — `df.groupby("user_id")` is
+build_user_index from project02 in one line, and it does the aggregation too.
+
+## data quality
+
+yes. completed_int is the clear example.
+
+csv has no types so True gets written as the text "True". in python
+bool("False") is True, so reading that column back naively gives you every row
+as completed. completed_int is 0/1 and survives the round trip.
+
+extra thing: because its 0 and 1, the mean of the column is the completion
+rate. mean of completed_int was 0.450 and value_counts said True 0.45 — same
+number two ways. thats why booleans get encoded as 0/1 for ml, the normal
+arithmetic starts meaning something.
+
+so the decision in project03 transform, which felt arbitrary at the time,
+turned out to be the thing that made project04 work.
+
+## checks i kept using
+
+- assert that counts add up after filtering. completed + pending == total
+- watch for ties before reporting a top n
+- idxmax gives the label, max gives the value. easy to mix up
+
+## environment
+
+- venv only lives in the terminal where you activate it. ModuleNotFoundError
+  for something you installed usually means wrong env, check for (.venv) in
+  the prompt
+- matplotlib needs `matplotlib.use("Agg")` before importing pyplot on wsl,
+  no display otherwise
+- nano: ctrl+end before pasting to append, or it goes in at the cursor
